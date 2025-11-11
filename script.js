@@ -1,4 +1,4 @@
-// Questions (do not modify)
+// Questions
 const questions = [
   {
     question: "What is the capital of France?",
@@ -27,18 +27,14 @@ const questions = [
   },
 ];
 
-// Elements
 const questionsElement = document.getElementById("questions");
 const submitBtn = document.getElementById("submit");
 const scoreElement = document.getElementById("score");
 
-// Load previously saved answers from sessionStorage
+// Load session progress
 let savedProgress = sessionStorage.getItem("progress");
 let userAnswers = savedProgress ? JSON.parse(savedProgress) : {};
 
-// ==========================
-// Render All Questions
-// ==========================
 function renderQuestions() {
   questionsElement.innerHTML = "";
 
@@ -55,13 +51,23 @@ function renderQuestions() {
       radio.name = `question-${i}`;
       radio.value = choice;
 
+      // Restore saved state
       if (userAnswers[i] === choice) {
         radio.checked = true;
+        radio.setAttribute("checked", "true"); // Required for Cypress
       }
 
       radio.addEventListener("click", () => {
         userAnswers[i] = choice;
         sessionStorage.setItem("progress", JSON.stringify(userAnswers));
+
+        // Remove checked attribute from all radios in this question
+        document
+          .querySelectorAll(`input[name="question-${i}"]`)
+          .forEach(r => r.removeAttribute("checked"));
+
+        // Add checked="true" for Cypress
+        radio.setAttribute("checked", "true");
       });
 
       const label = document.createElement("label");
@@ -77,9 +83,7 @@ function renderQuestions() {
 
 renderQuestions();
 
-// ==========================
-// Submit Quiz
-// ==========================
+// Submit quiz
 submitBtn.addEventListener("click", () => {
   let score = 0;
 
@@ -91,6 +95,5 @@ submitBtn.addEventListener("click", () => {
 
   scoreElement.textContent = `Your score is ${score} out of 5.`;
 
-  // Save final score in localStorage
   localStorage.setItem("score", score);
 });
